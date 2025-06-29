@@ -9,9 +9,14 @@ import { Provider } from "react-redux";
 import { store } from "./store/store";
 import { AuthProvider } from "./context/AuthContext";
 import LoginForm from "./auth/LoginForm";
+import Home from "./pages/Homepage";
 
 function App() {
     const router = createBrowserRouter([
+        {
+            path: "/",
+            element: <Home />,
+        },
         {
             path: "/chatpage",
             element: (

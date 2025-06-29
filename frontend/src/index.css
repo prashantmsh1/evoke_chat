@@ -406,3 +406,27 @@ input:focus {
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
 }
+
+/* Login page specific styles */
+.login-backdrop {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Enhanced glass effect for login card */
+.glass-card {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth hover transitions for buttons */
+.btn-hover-effect {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hover-effect:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+}

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import AppSidebar from "../sidebar/Sidebar";
-import { SidebarProvider, SidebarTrigger, useSidebar } from "../ui/sidebar";
+import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { useAuth } from "@/context/AuthContext";
 
 interface RootLayoutProps {
@@ -11,12 +11,12 @@ interface RootLayoutProps {
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
     const { open } = useSidebar();
-
+    const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
     useEffect(() => {
         // Redirect to login if not authenticated
         if (!isAuthenticated) {
-            window.location.href = "/login";
+            navigate("/login", { replace: true });
         }
     }, [isAuthenticated]);
 
