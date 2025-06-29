@@ -16,13 +16,14 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": false,
+    "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+  
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -30,5 +31,24 @@
       ]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+    "exclude": [
+    "src/components/ui/label.tsx",
+    "src/components/ui/menubar.tsx",
+    "src/components/ui/navigation-menu.tsx",
+    "src/components/ui/pagination.tsx",
+    "src/components/ui/popover.tsx",
+    "src/components/ui/progress.tsx",
+    "src/components/ui/radio-group.tsx",
+    "src/components/ui/resizable.tsx",
+    "src/components/ui/scroll-area.tsx",
+    "src/components/ui/select.tsx",
+    "src/components/ui/slider.tsx",
+    "src/components/ui/sonner.tsx"
+  ],
+  "ts-node": {
+      "compilerOptions": {
+      "module": "CommonJS"
+      }
+  }
 }
