@@ -1,0 +1,12 @@
+model TurnSource {
+    turnId         String
+    sourceId       String
+    citationNumber Int
+
+    turn   Turn   @relation(fields: [turnId], references: [id], onDelete: Cascade)
+    source Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+    @@id([turnId, sourceId])
+    @@index([turnId])
+    @@index([sourceId])
+}

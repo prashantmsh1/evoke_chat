@@ -1,0 +1,14 @@
+model Feedback {
+    id        String   @id @default(uuid())
+    turnId    String
+    userId    String
+    rating    Int
+    comment   String?
+    createdAt DateTime @default(now())
+
+    turn Turn @relation(fields: [turnId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([turnId, userId])
+    @@index([turnId])
+}

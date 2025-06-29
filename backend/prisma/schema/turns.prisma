@@ -1,0 +1,26 @@
+model Turn {
+    id          String      @id @default(uuid())
+    threadId    String
+    userPrompt  String
+    llmResponse String?
+    status      QueryStatus @default(processing)
+    createdAt   DateTime    @default(now())
+
+    // NEW FIELD: Stores which model was used for this specific turn
+    llmModel LLMModel @default(GEMINI_2_5_FLASH) // System-wide default
+
+    metadata Json?
+
+    thread   Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+    sources  TurnSource[]
+    feedback Feedback[]
+
+    @@index([threadId])
+}
+
+// ENUMS for controlled vocabulary
+enum QueryStatus {
+    processing
+    completed
+    failed
+}

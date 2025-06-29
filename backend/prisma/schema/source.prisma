@@ -1,0 +1,10 @@
+model Source {
+    id            String   @id @default(uuid())
+    url           String   @unique
+    title         String?
+    snippet       String?
+    rawContent    String?  @db.Text
+    lastFetchedAt DateTime @default(now())
+
+    turns TurnSource[]
+}

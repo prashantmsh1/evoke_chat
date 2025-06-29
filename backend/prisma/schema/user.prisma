@@ -1,0 +1,25 @@
+enum LLMModel {
+    GEMINI_2_5_FLASH
+    GEMINI_2_5_PRO
+    GPT_4_OMNI
+    CLAUDE_4_OPUS
+}
+
+// =================================================================
+// MODELS
+// =================================================================
+model User {
+    id             String   @id @default(uuid())
+    email          String   @unique
+    password       String
+    name           String?
+    googlePhotoUrl String
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+
+    // NEW FIELD: User's preferred default LLM
+    defaultLlmModel LLMModel?
+
+    threads  Thread[]
+    feedback Feedback[]
+}
