@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
 import useTurnChatSSE from "@/hooks/useTurnChatSSE";
-
 import { useInitiateThreadMutation } from "@/store/api/threadApi";
 import { addMessage, setThread } from "@/store/slice/threadSlice";
 import { ArrowRight } from "lucide-react";
@@ -30,58 +28,74 @@ const ChatPage: React.FC = () => {
                 addMessage({
                     threadId: res.threadId,
                     message: {
-                        id: Date.now(), // Use timestamp as a simple ID
+                        id: Date.now(),
                         type: "user",
                         content: prompt,
                         timestamp: new Date().toISOString(),
                     },
                 })
             );
-
-            // Handle successful thread initiation, e.g., redirect or show a message
         } catch (error) {
             console.error("Failed to initiate thread:", error);
-            // Handle error, e.g., show an error message
         }
     };
 
     useEffect(() => {
         if (currentThreadId !== undefined) {
-            // Start listening to SSE for the current thread
             navigate(`/chat/${currentThreadId}`);
         }
     }, [currentThreadId, dispatch]);
 
     return (
-        <div className="mx-auto w-full gap-y-12 h-screen flex flex-col items-center justify-center">
-            <h1 className=" text-sky-400/80 font-medium text-6xl">Evoke Ai</h1>
+        <div className="min-h-screen w-screen bg-black text-white flex flex-col items-center justify-center px-4">
+            {/* Subtle background effects */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/10 to-black"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(255,255,255,0.05)_1px,_transparent_0)] bg-[length:32px_32px] opacity-20"></div>
 
-            <form
-                onSubmit={handleSubmit}
-                className=" w-1/2 flex-col flex shadow shadow-gray-600 items-center justify-center border p-4 rounded-xl">
-                <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSubmit(e);
-                        }
-                    }}
-                    disabled={isLoading}
-                    className=" rounded border-0   focus-visible:ring-0 resize-none   "
-                    placeholder="Ask Anything..."
-                />
-                <div className=" flex justify-between mt-2 w-full">
-                    <div></div>
-                    <Button
-                        type="submit"
-                        disabled={isLoading || !prompt.trim()}
-                        className=" bg-sky-700/25 hover:bg-sky-700/50 text-gray-50 font-semibold">
-                        <ArrowRight className=" text-gray-50 size-6" />
-                    </Button>
+            <div className="relative z-10 max-w-4xl w-full space-y-12 flex flex-col items-center justify-center">
+                <div className="text-center space-y-4">
+                    <h1 className="text-6xl font-light gradient-text">Evoke AI</h1>
+                    <p className="text-white/60 text-lg font-light">
+                        Ask anything, get intelligent answers
+                    </p>
                 </div>
-            </form>
+
+                <form onSubmit={handleSubmit} className="w-full max-w-2xl">
+                    <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
+                        <Textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e);
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="bg-transparent border-0 focus-visible:ring-0 resize-none text-white placeholder:text-white/40 font-light text-lg min-h-[120px]"
+                            placeholder="Ask anything..."
+                        />
+                        <div className="flex justify-between items-center mt-4 pt-4 border-t border-white/10">
+                            <div className="text-xs text-white/40 font-light">
+                                Press Enter to send, Shift+Enter for new line
+                            </div>
+                            <Button
+                                type="submit"
+                                disabled={isLoading || !prompt.trim()}
+                                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl px-6 py-3 font-light transition-all duration-300 transform hover:scale-[1.02] backdrop-blur-sm disabled:opacity-50 disabled:hover:scale-100">
+                                {isLoading ? (
+                                    <div className="flex items-center">
+                                        <div className="animate-spin mr-2 h-4 w-4 border-2 border-white/30 border-t-white rounded-full"></div>
+                                        <span>Sending...</span>
+                                    </div>
+                                ) : (
+                                    <ArrowRight className="size-5" />
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

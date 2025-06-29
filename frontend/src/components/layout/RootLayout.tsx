@@ -21,20 +21,19 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
     }, [isAuthenticated]);
 
     return (
-        <div className="min-h-screen flex w-screen ">
-            {/* Navbar */}
-
+        <div className="min-h-screen flex w-screen bg-black">
+            {/* Sidebar */}
             <AppSidebar />
 
-            <div className="flex relative w-full ">
-                {/* Sidebar */}
+            <div className="flex relative w-full bg-black">
+                {/* Sidebar Trigger - Only show when sidebar is closed */}
                 {!open && (
-                    <SidebarTrigger className=" absolute mt-2 hover:text-gray-50 text-gray-50" />
+                    <SidebarTrigger className="absolute top-4 left-4 z-50 bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl p-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.05]" />
                 )}
 
                 {/* Main Content Area */}
-                <main className=" w-full ">
-                    <div className=" w-full">
+                <main className="w-full bg-[#1C1C1C]">
+                    <div className="w-full">
                         <Outlet />
                         {children}
                     </div>
@@ -44,4 +43,5 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
     );
 };
 
+// export default RootLayout;
 export default RootLayout;

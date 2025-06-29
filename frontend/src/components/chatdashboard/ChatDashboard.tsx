@@ -38,15 +38,15 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     const currentThreadId = useSelector((state: RootState) => state.chat.currentThreadId);
     const currentMessages = useSelector((state: RootState) => state.chat.messages[threadId] || []);
     const turnId = useSelector((state: RootState) => state.chat.threads[currentThreadId]?.turnId);
-    // console.log("Current messages:", currentMessages);
     const isFirstChunk = useRef(true);
 
     const messages = useMemo(() => {
         return currentMessages.map((message) => ({
             ...message,
-            finished: message.finished || false, // Ensure finished is always defined
+            finished: message.finished || false,
         }));
     }, [currentMessages]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -74,7 +74,6 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                 })
             );
 
-            // Clear the input
             setNewMessage("");
         } catch (error) {
             console.error("Failed to initiate thread:", error);
@@ -82,9 +81,8 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
         }
     };
 
-    // Memoize the callback functions to prevent re-renders
     const onDone = useCallback(() => {
-        isFirstChunk.current = true; // Reset for next stream
+        isFirstChunk.current = true;
         setIsStreaming(false);
     }, []);
 
@@ -104,7 +102,6 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                 setIsStreaming(false);
             }
             if (isFirst) {
-                // Create initial assistant message
                 const initialMessage = {
                     id: Date.now(),
                     type: "assistant" as const,
@@ -116,7 +113,6 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                 };
                 dispatch(addMessage({ threadId: String(threadId), message: initialMessage }));
             } else {
-                // Append new content to create typing effect
                 flushSync(() => {
                     dispatch(
                         appendToLastAssistantMessage({
@@ -133,20 +129,11 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
         [dispatch, threadId, isStreaming]
     );
 
-    // Use the typing animation approach with memoized callbacks
-    useTurnChatSSE(
-        turnId,
-        undefined, // Don't use the message callback
-        onDone,
-        onChunk,
-        onStreamStart
-    );
+    useTurnChatSSE(turnId, undefined, onDone, onChunk, onStreamStart);
+
     useEffect(() => {
         if (!currentThreadId && threadId) {
-            // If we have a threadId prop but no currentThreadId, we might need to fetch thread data
-            // or set the currentThreadId
-            // console.log("Setting current thread ID from prop:", threadId);
-            // You might need to dispatch setCurrentThreadId here if you have existing thread data
+            // Handle thread ID logic
         }
     }, [currentThreadId, threadId]);
 
@@ -154,7 +141,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
         if (messagesEndRef.current) {
             const timeout = setTimeout(() => {
                 messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-            }, 30); // 30ms delay
+            }, 30);
             return () => clearTimeout(timeout);
         }
     }, [messages]);
@@ -168,7 +155,6 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 
     const formatTimestamp = (timestamp) => {
         const date = new Date(timestamp);
-
         return new Intl.DateTimeFormat("en-US", {
             hour: "2-digit",
             minute: "2-digit",
@@ -177,11 +163,13 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     };
 
     return (
-        <div className="flex flex-col mx-auto max-w-5xl h-screen ">
-            {/* Header */}
+        <div className="flex flex-col mx-auto max-w-5xl h-screen bg-[#1C1C1C] text-white">
+            {/* Subtle background effects */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/10 to-black"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(255,255,255,0.05)_1px,_transparent_0)] bg-[length:32px_32px] opacity-20"></div>
 
             {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto hide-scrollbar  px-6 py-4 space-y-6">
+            <div className="flex-1 overflow-y-auto hide-scrollbar px-6 py-4 space-y-6 relative z-10">
                 {messages.map((message) => (
                     <div key={message.id} className="space-y-4">
                         {/* Message */}
@@ -190,33 +178,25 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                 message.type === "user" ? "justify-end" : "justify-start"
                             }`}>
                             <div
-                                className={`max-w-4xl rounded-lg px-6 py-4 ${
+                                className={`max-w-4xl rounded-2xl px-6 py-4 ${
                                     message.type === "user"
-                                        ? "bg-gray-700/10 text-white"
-                                        : " bg-gray-700/10   shadow-sm"
+                                        ? "bg-black/10 backdrop-blur-sm border border-white/10 text-white"
+                                        : "bg-black/10 backdrop-blur-xl border border-white/10 shadow-lg"
                                 }`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <span
-                                        className={`text-sm font-medium ${
-                                            message.type === "user"
-                                                ? "text-blue-100"
-                                                : "text-gray-600"
-                                        }`}>
-                                        {message.type === "user" ? "You" : "Assistant"}
+                                {/* <div className="flex items-center justify-between mb-3">
+                                    <span className="text-sm font-light text-white/80">
+                                        {message.type === "user" ? "You" : "Evoke AI"}
                                     </span>
-                                    <span
-                                        className={`text-xs flex items-center ${
-                                            message.type === "user"
-                                                ? "text-blue-200"
-                                                : "text-gray-500"
-                                        }`}>
+                                    <span className="text-xs flex items-center text-white/50 font-light">
                                         <ClockIcon className="h-3 w-3 mr-1" />
                                         {formatTimestamp(message.timestamp)}
                                     </span>
-                                </div>
+                                </div> */}
 
                                 {message.type === "user" ? (
-                                    <p className="text-white">{message.content}</p>
+                                    <p className="text-white font-light leading-relaxed">
+                                        {message.content}
+                                    </p>
                                 ) : (
                                     <div
                                         className={`prose prose-sm max-w-none ${
@@ -261,7 +241,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             <div className="ml-4 max-w-3xl">
                                 <button
                                     onClick={() => toggleSources(message.id)}
-                                    className="flex transition-all duration-300 items-center text-sm font-medium text-gray-400 hover:text-gray-300">
+                                    className="flex transition-all duration-300 items-center text-sm font-light text-white/60 hover:text-white/80">
                                     <LinkIcon className="h-4 w-4 mr-2" />
                                     Sources ({message.sources.length})
                                     {expandedSources[message.id] ? (
@@ -276,23 +256,23 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                         {message.sources.map((source, index) => (
                                             <div
                                                 key={index}
-                                                className="bg-gray-700/10  rounded-lg p-3">
+                                                className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4">
                                                 <div className="flex items-start space-x-3">
                                                     <span className="text-lg">
                                                         {source.favicon}
                                                     </span>
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 *:text-wrap">
                                                         <a
                                                             href={source.url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="font-medium text-blue-600 hover:text-blue-800">
+                                                            className="font-light text-white hover:text-white/80 transition-colors">
                                                             {source.title}
                                                         </a>
-                                                        <p className="text-sm text-gray-400 mt-1">
+                                                        <p className="text-sm text-white/60 mt-1 font-light">
                                                             {source.description}
                                                         </p>
-                                                        <p className="text-xs text-gray-300 mt-1">
+                                                        <p className="text-xs whitespace-break-spaces text-white/40 mt-1 font-light">
                                                             {source.url}
                                                         </p>
                                                     </div>
@@ -308,19 +288,19 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 
                 {isStreaming && (
                     <div className="flex justify-start">
-                        <div className="bg-gray-700/10 rounded-lg px-6 py-4 shadow-sm max-w-4xl">
+                        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-4 shadow-lg max-w-4xl">
                             <div className="flex items-center space-x-3">
                                 <div className="flex space-x-1">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
                                     <div
-                                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                                        className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
                                         style={{ animationDelay: "0.1s" }}></div>
                                     <div
-                                        className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                                        className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
                                         style={{ animationDelay: "0.2s" }}></div>
                                 </div>
-                                <span className="text-gray-400 font-medium">
-                                    Assistant is thinking...
+                                <span className="text-white/60 font-light">
+                                    Evoke AI is thinking...
                                 </span>
                             </div>
                         </div>
@@ -331,30 +311,35 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
             </div>
 
             {/* Chat Input */}
-            <div className="   py-4">
-                <form onSubmit={handleSubmit} className="flex  flex-col">
-                    <textarea
-                        cols={1}
-                        type="text"
-                        value={newMessage}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSubmit(e);
-                            }
-                        }}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Ask a question..."
-                        className="w-full px-4 py-3 resize-none text-wrap hide-scrollbar bg-gray-700/10 focus:ring-gray-400 focus:ring-0 rounded-lg outline-none"
-                        disabled={isInitiatingThread || isStreaming}
-                    />
-                    <div className="bg-gray-700/10 p-4 w-full">
-                        <button
-                            type="submit"
-                            disabled={isInitiatingThread || isStreaming || !newMessage.trim()}
-                            className="px-4  place-self-end w-fit py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                            <PaperAirplaneIcon className="h-5 w-5" />
-                        </button>
+            <div className="py-4 relative z-10">
+                <form onSubmit={handleSubmit} className="px-6">
+                    <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                        <textarea
+                            cols={1}
+                            type="text"
+                            value={newMessage}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e);
+                                }
+                            }}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            placeholder="Ask a follow-up question..."
+                            className="w-full px-4 py-3 resize-none text-wrap hide-scrollbar bg-transparent text-white placeholder:text-white/40 font-light outline-none border-0 focus:ring-0"
+                            disabled={isInitiatingThread || isStreaming}
+                        />
+                        <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/10">
+                            <div className="text-xs text-white/40 font-light">
+                                Press Enter to send, Shift+Enter for new line
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isInitiatingThread || isStreaming || !newMessage.trim()}
+                                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl px-4 py-2 font-light transition-all duration-300 transform hover:scale-[1.02] backdrop-blur-sm disabled:opacity-50 disabled:hover:scale-100 flex items-center">
+                                <PaperAirplaneIcon className="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -363,3 +348,14 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 };
 
 export default ChatDashboard;
+//                             className="px-4  place-self-end w-fit py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+//                             <PaperAirplaneIcon className="h-5 w-5" />
+//                         </button>
+//                     </div>
+//                 </form>
+//             </div>
+//         </div>
+//     );
+// };
+
+// export default ChatDashboard;
