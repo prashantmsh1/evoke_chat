@@ -25,10 +25,13 @@ export interface AuthResponse {
     refreshToken: string;
 }
 
+const server = import.meta.env.VITE_SERVER_URL;
+const baseUrl = server ? `${server}/api` : "http://localhost:3000/api";
+
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: import.meta.env.VITE_SERVER_URL + "/api" || "http://localhost:3000/api",
+        baseUrl,
         prepareHeaders: (headers, { getState }) => {
             const token = (getState() as RootState).auth.accessToken;
             if (token) {
