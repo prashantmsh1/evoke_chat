@@ -70,16 +70,16 @@ app.use("/api", threadRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// Graceful shutdown for Railway
-process.on("SIGTERM", () => {
-    console.log("SIGTERM received, shutting down gracefully");
-    process.exit(0);
-});
+// // Graceful shutdown for Railway
+// process.on("SIGTERM", () => {
+//     console.log("SIGTERM received, shutting down gracefully");
+//     process.exit(0);
+// });
 
-process.on("SIGINT", () => {
-    console.log("SIGINT received, shutting down gracefully");
-    process.exit(0);
-});
+// process.on("SIGINT", () => {
+//     console.log("SIGINT received, shutting down gracefully");
+//     process.exit(0);
+// });
 
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on port ${PORT}`);

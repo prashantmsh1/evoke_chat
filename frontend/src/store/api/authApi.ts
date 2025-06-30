@@ -26,8 +26,9 @@ export interface AuthResponse {
 }
 
 const server = import.meta.env.VITE_SERVER_URL;
-const baseUrl = server ? `${server}/api` : "http://localhost:3000/api";
+const baseUrl = server ? `${server}/api` : "http://localhost:3000";
 
+console.log("Base URL for auth API:", server);
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
