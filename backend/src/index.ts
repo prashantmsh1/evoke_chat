@@ -101,3 +101,9 @@ process.on("unhandledRejection", (reason: Error | any) => {
         process.exit(1);
     });
 });
+// Also log memory usage periodically to check for leaks
+setInterval(() => {
+    console.log(
+        `💡 Current memory usage: ${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`
+    );
+}, 60000); // Log every minute
