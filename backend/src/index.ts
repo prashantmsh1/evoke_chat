@@ -14,6 +14,13 @@ import threadRoutes from "./routes/thread.routes";
 
 dotenv.config();
 
+// Add these global error handlers at the top
+process.on("uncaughtException", (error) => {
+    console.error("UNCAUGHT EXCEPTION! 💥 Shutting down...");
+    console.error(error.name, error.message);
+    process.exit(1);
+});
+
 const app = express();
 
 LLMConfigService.initialize(); // Initialize LLM configurations
@@ -70,19 +77,27 @@ app.use("/api", threadRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-// // Graceful shutdown for Railway
-// process.on("SIGTERM", () => {
-//     console.log("SIGTERM received, shutting down gracefully");
-//     process.exit(0);
-// });
+// Graceful shutdown for Railway
+process.on("SIGTERM", () => {
+    console.log("SIGTERM received, shutting down gracefully");
+    process.exit(0);
+});
 
-// process.on("SIGINT", () => {
-//     console.log("SIGINT received, shutting down gracefully");
-//     process.exit(0);
-// });
+process.on("SIGINT", () => {
+    console.log("SIGINT received, shutting down gracefully");
+    process.exit(0);
+});
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Environment: ${process.env.NODE_ENV}`);
     console.log(`🌐 Listening on 0.0.0.0:${PORT}`);
+});
+
+process.on("unhandledRejection", (reason: Error | any) => {
+    console.error("UNHANDLED REJECTION! 💥 Shutting down...");
+    console.error(reason.name, reason.message);
+    server.close(() => {
+        process.exit(1);
+    });
 });
