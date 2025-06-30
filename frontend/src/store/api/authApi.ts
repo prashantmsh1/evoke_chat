@@ -28,7 +28,7 @@ export interface AuthResponse {
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+        baseUrl: import.meta.env.VITE_SERVER_URL + "/api" || "http://localhost:3000/api",
         prepareHeaders: (headers, { getState }) => {
             const token = (getState() as RootState).auth.accessToken;
             if (token) {
