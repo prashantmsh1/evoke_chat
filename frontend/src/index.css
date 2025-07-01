@@ -145,37 +145,37 @@ button:focus-visible {
 }
 
 .dark {
-    --background: oklch(0.24 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --background: oklch(0.17 0 0); /* #2B2B2B */
+    --foreground: oklch(0.92 0 0); /* #EAEAEA */
+    --card: oklch(0.22 0 0); /* #383838 */
+    --card-foreground: oklch(0.92 0 0);
+    --popover: oklch(0.22 0 0);
+    --popover-foreground: oklch(0.92 0 0);
+    --primary: oklch(0.85 0 0);
+    --primary-foreground: oklch(0.17 0 0);
+    --secondary: oklch(0.27 0 0); /* #454545 */
+    --secondary-foreground: oklch(0.92 0 0);
+    --muted: oklch(0.27 0 0);
+    --muted-foreground: oklch(0.65 0 0); /* #A1A1A1 */
+    --accent: oklch(0.32 0 0); /* #525252 */
+    --accent-foreground: oklch(0.92 0 0);
     --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
+    --border: oklch(0.32 0 0);
+    --input: oklch(0.32 0 0);
+    --ring: oklch(0.65 0 0);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar: oklch(0.17 0 0);
+    --sidebar-foreground: oklch(0.92 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --sidebar-primary-foreground: oklch(0.92 0 0);
+    --sidebar-accent: oklch(0.27 0 0);
+    --sidebar-accent-foreground: oklch(0.92 0 0);
+    --sidebar-border: oklch(0.32 0 0);
+    --sidebar-ring: oklch(0.65 0 0);
 }
 
 @layer base {
@@ -186,8 +186,6 @@ button:focus-visible {
         @apply bg-background text-foreground;
     }
 }
-
-/* ...existing code... */
 
 /* Hide scrollbar utility classes */
 .hide-scrollbar {
@@ -231,18 +229,17 @@ button:focus-visible {
         opacity: 1;
     }
 }
-/* ...existing code... */
 
 /* Custom styles for ReactMarkdown */
 .prose {
-    color: oklch(98.5% 0.002 247.839);
+    color: var(--foreground);
 }
 
 .prose h1 {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    color: oklch(98.5% 0.002 247.839);
+    color: var(--foreground);
 }
 
 .prose h2 {
@@ -250,7 +247,7 @@ button:focus-visible {
     font-weight: 600;
     margin-bottom: 0.75rem;
     margin-top: 1.5rem;
-    color: oklch(98.5% 0.002 247.839);
+    color: var(--foreground);
 }
 
 .prose h3 {
@@ -258,57 +255,61 @@ button:focus-visible {
     font-weight: 600;
     margin-bottom: 0.5rem;
     margin-top: 1rem;
-    color: oklch(98.5% 0.002 247.839);
+    color: var(--foreground);
 }
 
 .prose p {
     margin-bottom: 1rem;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
 .prose ul,
 .prose ol {
     margin-bottom: 1rem;
     padding-left: 1.5rem;
+    line-height: 1.7;
 }
 
 .prose li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .prose code {
-    background-color: oklch(27.8% 0.033 256.848);
-    padding: 0.125rem 0.25rem;
+    background-color: var(--secondary);
+    padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
     font-size: 0.875rem;
-    color: #dc2626;
+    color: var(--secondary-foreground);
+    border: 1px solid var(--border);
 }
 
 .prose pre {
-    background-color: #2a2f38;
+    background-color: transparent;
     padding: 0;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    margin: 1rem 0;
+    border-radius: 0;
+    overflow-x: visible;
+    margin: 0;
+    border: none;
 }
 
 .prose pre code {
     background-color: transparent;
-    color: #f9fafb;
+    color: var(--card-foreground);
     padding: 0;
+    border: none;
 }
 
 .prose blockquote {
-    border-left: 4px solid #d1d5db;
+    border-left: 4px solid var(--border);
     padding-left: 1rem;
     margin: 1rem 0;
     font-style: italic;
-    color: #6b7280;
+    color: var(--muted-foreground);
 }
 
 .prose strong {
     font-weight: 600;
-    color: oklch(98.5% 0.002 247.839);
+    color: var(--foreground);
 }
 
 .prose em {
@@ -316,14 +317,13 @@ button:focus-visible {
 }
 
 .prose a {
-    color: oklch(98.5% 0.002 247.839);
-    text-decoration: underline;
+    color: #8ab4f8;
+    text-decoration: none;
 }
 
 .prose a:hover {
-    color: oklch(98.5% 0.002 247.839);
+    text-decoration: underline;
 }
-/* ...existing code... */
 
 /* homepage css */
 
@@ -381,27 +381,29 @@ input:focus {
     }
 }
 
-/* Gradient text effect for headings */
-.gradient-text {
-    background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+/* Login page specific styles */
+.login-backdrop {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-/* Subtle animation for gradient shifts */
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
+/* Enhanced glass effect for login card */
+.glass-card {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Smooth hover transitions for buttons */
+.btn-hover-effect {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-hover-effect:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+}
 .animate-gradient {
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;

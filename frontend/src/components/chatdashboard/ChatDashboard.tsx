@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { okaidia } from "react-syntax-highlighter/dist/esm/styles/prism";
 import {
     ChevronDownIcon,
     ChevronUpIcon,
@@ -163,9 +163,9 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     };
 
     return (
-        <div className="flex flex-col mx-auto max-w-5xl h-screen bg-[#1C1C1C] text-white">
+        <div className="flex flex-col mx-auto max-w-5xl h-screen bg-background text-foreground">
             {/* Subtle background effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/10 to-black"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-background via-background/10 to-background"></div>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_rgba(255,255,255,0.05)_1px,_transparent_0)] bg-[length:32px_32px] opacity-20"></div>
 
             {/* Messages Container */}
@@ -180,21 +180,21 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             <div
                                 className={`max-w-4xl rounded-2xl px-6 py-4 ${
                                     message.type === "user"
-                                        ? "bg-black/10 backdrop-blur-sm border border-white/10 text-white"
-                                        : "bg-black/10 backdrop-blur-xl border border-white/10 shadow-lg"
+                                        ? "bg-card/20 backdrop-blur-sm border border-border text-foreground"
+                                        : "bg-card/20 backdrop-blur-xl border border-border shadow-lg"
                                 }`}>
                                 {/* <div className="flex items-center justify-between mb-3">
-                                    <span className="text-sm font-light text-white/80">
+                                    <span className="text-sm font-light text-foreground/80">
                                         {message.type === "user" ? "You" : "Evoke AI"}
                                     </span>
-                                    <span className="text-xs flex items-center text-white/50 font-light">
+                                    <span className="text-xs flex items-center text-muted-foreground font-light">
                                         <ClockIcon className="h-3 w-3 mr-1" />
                                         {formatTimestamp(message.timestamp)}
                                     </span>
                                 </div> */}
 
                                 {message.type === "user" ? (
-                                    <p className="text-white font-light leading-relaxed">
+                                    <p className="text-foreground font-light leading-relaxed">
                                         {message.content}
                                     </p>
                                 ) : (
@@ -216,7 +216,13 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                                     );
                                                     return !inline && match ? (
                                                         <SyntaxHighlighter
-                                                            style={tomorrow}
+                                                            style={okaidia}
+                                                            customStyle={{
+                                                                backgroundColor: "var(--card)",
+                                                                padding: "1rem",
+                                                                borderRadius: "0.5rem",
+                                                                border: "1px solid var(--border)",
+                                                            }}
                                                             language={match[1]}
                                                             PreTag="div"
                                                             {...props}>
@@ -241,7 +247,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             <div className="ml-4 max-w-3xl">
                                 <button
                                     onClick={() => toggleSources(message.id)}
-                                    className="flex transition-all duration-300 items-center text-sm font-light text-white/60 hover:text-white/80">
+                                    className="flex transition-all duration-300 items-center text-sm font-light text-muted-foreground hover:text-foreground/80">
                                     <LinkIcon className="h-4 w-4 mr-2" />
                                     Sources ({message.sources.length})
                                     {expandedSources[message.id] ? (
@@ -256,7 +262,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                         {message.sources.map((source, index) => (
                                             <div
                                                 key={index}
-                                                className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-xl p-4">
+                                                className="bg-card/40 backdrop-blur-xl border border-border rounded-xl p-4">
                                                 <div className="flex items-start space-x-3">
                                                     <span className="text-lg">
                                                         {source.favicon}
@@ -266,13 +272,13 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                                             href={source.url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="font-light text-white hover:text-white/80 transition-colors">
+                                                            className="font-light text-foreground hover:text-foreground/80 transition-colors">
                                                             {source.title}
                                                         </a>
-                                                        <p className="text-sm text-white/60 mt-1 font-light">
+                                                        <p className="text-sm text-muted-foreground mt-1 font-light">
                                                             {source.description}
                                                         </p>
-                                                        <p className="text-xs whitespace-break-spaces text-white/40 mt-1 font-light">
+                                                        <p className="text-xs whitespace-break-spaces text-muted-foreground/70 mt-1 font-light">
                                                             {source.url}
                                                         </p>
                                                     </div>
@@ -288,18 +294,18 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 
                 {isStreaming && (
                     <div className="flex justify-start">
-                        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-4 shadow-lg max-w-4xl">
+                        <div className="bg-card/40 backdrop-blur-xl border border-border rounded-2xl px-6 py-4 shadow-lg max-w-4xl">
                             <div className="flex items-center space-x-3">
                                 <div className="flex space-x-1">
-                                    <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-foreground/60 rounded-full animate-bounce"></div>
                                     <div
-                                        className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
+                                        className="w-2 h-2 bg-foreground/60 rounded-full animate-bounce"
                                         style={{ animationDelay: "0.1s" }}></div>
                                     <div
-                                        className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
+                                        className="w-2 h-2 bg-foreground/60 rounded-full animate-bounce"
                                         style={{ animationDelay: "0.2s" }}></div>
                                 </div>
-                                <span className="text-white/60 font-light">
+                                <span className="text-muted-foreground font-light">
                                     Evoke AI is thinking...
                                 </span>
                             </div>
@@ -311,11 +317,11 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
             </div>
 
             {/* Chat Input */}
-            <div className="py-4 relative z-10">
+            <div className="py-1 relative z-10 mb-1">
                 <form onSubmit={handleSubmit} className="px-6">
-                    <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+                    <div className="bg-card/40 backdrop-blur-xl flex  border border-border rounded-2xl p-1 shadow-2xl">
                         <textarea
-                            cols={1}
+                            cols={3}
                             type="text"
                             value={newMessage}
                             onKeyDown={(e) => {
@@ -326,17 +332,14 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             }}
                             onChange={(e) => setNewMessage(e.target.value)}
                             placeholder="Ask a follow-up question..."
-                            className="w-full px-4 py-3 resize-none text-wrap hide-scrollbar bg-transparent text-white placeholder:text-white/40 font-light outline-none border-0 focus:ring-0"
+                            className="w-full px-4 py-2 resize-none text-wrap hide-scrollbar bg-transparent text-foreground placeholder:text-muted-foreground font-light outline-none border-0 focus:ring-0"
                             disabled={isInitiatingThread || isStreaming}
                         />
-                        <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/10">
-                            <div className="text-xs text-white/40 font-light">
-                                Press Enter to send, Shift+Enter for new line
-                            </div>
+                        <div className="flex justify-between items-center  ">
                             <button
                                 type="submit"
                                 disabled={isInitiatingThread || isStreaming || !newMessage.trim()}
-                                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-xl px-4 py-2 font-light transition-all duration-300 transform hover:scale-[1.02] backdrop-blur-sm disabled:opacity-50 disabled:hover:scale-100 flex items-center">
+                                className="bg-secondary hover:bg-accent text-secondary-foreground border border-border hover:border-border/80 rounded-xl px-4 py-2 font-light transition-all duration-300 transform hover:scale-[1.02] backdrop-blur-sm disabled:opacity-50 disabled:hover:scale-100 flex items-center">
                                 <PaperAirplaneIcon className="h-5 w-5" />
                             </button>
                         </div>
@@ -348,14 +351,4 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 };
 
 export default ChatDashboard;
-//                             className="px-4  place-self-end w-fit py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-//                             <PaperAirplaneIcon className="h-5 w-5" />
-//                         </button>
-//                     </div>
-//                 </form>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default ChatDashboard;
+//

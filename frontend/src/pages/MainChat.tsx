@@ -7,7 +7,7 @@ const MainChat = () => {
     console.log("Thread ID:", params);
 
     return (
-        <div>
+        <div className="bg-background min-h-screen">
             <ChatDashboard threadId={params} />
         </div>
     );
