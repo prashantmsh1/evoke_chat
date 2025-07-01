@@ -49,7 +49,9 @@ const Header: React.FC = () => {
 
                     {/* CTA */}
                     <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                        <button className="group px-8 py-4 bg-white text-black text-sm font-medium tracking-wide hover:bg-gray-100 transition-all duration-300 flex items-center space-x-3 shadow-lg">
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="group px-8 py-4 bg-white text-black text-sm font-medium tracking-wide hover:bg-gray-100 transition-all duration-300 flex items-center space-x-3 shadow-lg">
                             <span>Get Started</span>
                             <ArrowRight
                                 className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
