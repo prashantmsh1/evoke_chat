@@ -31,13 +31,13 @@ const AppSidebar = () => {
                     <div>
                         <img src="/evoke.svg" alt="Logo" className="h-8 w-8 text-sky-800 " />
                     </div>
-                    {open && <SidebarTrigger />}
+                    {open && <SidebarTrigger className=" bg-gray-800" />}
                 </div>
             </SidebarHeader>
             <SidebarContent className="  " />
             <SidebarFooter>
                 <SidebarMenu>
-                    <SidebarMenuItem className="  *:text-gray-50 *:hover:text-gray-50">
+                    <SidebarMenuItem className="  *:text-gray-50 :bg-gray-800 *:hover:text-gray-50">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton>
@@ -47,14 +47,16 @@ const AppSidebar = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 side="top"
-                                className="w-[--radix-popper-anchor-width]">
+                                className="w-[--radix-popper-anchor-width] ">
                                 {/* <DropdownMenuItem>
                                     <span>Account</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <span>Billing</span>
                                 </DropdownMenuItem> */}
-                                <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                                <DropdownMenuItem
+                                    onClick={logout}
+                                    className="cursor-pointer bg-gray-800/40">
                                     <span>Sign out</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
