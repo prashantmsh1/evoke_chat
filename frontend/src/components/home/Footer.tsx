@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
                     {/* Brand */}
                     <div className="lg:col-span-1">
                         <div className="flex items-center space-x-3 mb-8">
-                            <Brain className="w-6 h-6 text-white" strokeWidth={1.5} />
+                            <img src="/evoke.svg" alt="Evoke AI Logo" className="w-8 h-8" />
                             <span className="text-lg font-light tracking-wide text-white">
                                 Evoke AI
                             </span>

@@ -13,7 +13,7 @@ const Header: React.FC = () => {
                 {/* Navigation */}
                 <nav className="absolute top-8 left-0 right-0 flex justify-between items-center px-6 lg:px-12">
                     <div className="flex items-center space-x-3">
-                        <Brain className="w-7 h-7 text-white" strokeWidth={1.5} />
+                        <img src="/evoke.svg" alt="Evoke AI Logo" className="w-8 h-8" />
                         <span className="text-xl font-light tracking-wide text-white">
                             Evoke AI
                         </span>
