@@ -75,7 +75,7 @@ const ChatPage: React.FC = () => {
                             className="bg-transparent border-0 focus-visible:ring-0 resize-none text-foreground placeholder:text-muted-foreground font-light text-lg min-h-[120px]"
                             placeholder="Ask anything..."
                         />
-                        <div className="flex justify-between items-center mt-4 pt-4 border-t border-border">
+                        <div className="flex w-full justify-end mt-4 pt-4 border-t border-border">
                             <Button
                                 type="submit"
                                 disabled={isLoading || !prompt.trim()}
