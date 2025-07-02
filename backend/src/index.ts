@@ -20,14 +20,18 @@ process.on("uncaughtException", (error) => {
     console.error(error.name, error.message);
     process.exit(1);
 });
+console.log("Starting application...");
 
 const app = express();
+console.log("Express app created.");
 
-LLMConfigService.initialize(); // Initialize LLM configurations
+// LLMConfigService.initialize(); // Initialize LLM configurations
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 app.set("trust proxy", true); // Trust first proxy for rate limiting
 // Rate limiting
+
+console.log("App configured.");
 const EXCLUDED_IPS = ["123.123.123.123", "127.0.0.1"]; // Add any IPs you want to exclude
 
 const limiter = rateLimit({
