@@ -61,7 +61,7 @@ app.use(
 );
 app.use(compression());
 app.use(morgan("combined"));
-app.use(limiter);
+// app.use(limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
