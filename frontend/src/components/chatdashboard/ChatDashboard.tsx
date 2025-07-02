@@ -16,11 +16,12 @@ import useTurnChatSSE from "@/hooks/useTurnChatSSE";
 import {
     addMessage,
     appendToLastAssistantMessage,
+    appendTurnsList,
     setThread,
     updateLastAssistantMessage,
 } from "@/store/slice/threadSlice";
 import { flushSync } from "react-dom";
-import { useInitiateThreadMutation } from "@/store/api/threadApi";
+import { useGetThreadTurnsByIdQuery, useInitiateThreadMutation } from "@/store/api/threadApi";
 
 interface ChatDashboardProps {
     threadId: string;
@@ -39,7 +40,12 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     const currentMessages = useSelector((state: RootState) => state.chat.messages[threadId] || []);
     const turnId = useSelector((state: RootState) => state.chat.threads[currentThreadId]?.turnId);
     const isFirstChunk = useRef(true);
-
+    const { data: allTurns = [], isLoading: isTurnsLoading } = useGetThreadTurnsByIdQuery(
+        { threadId },
+        {
+            skip: !threadId,
+        }
+    );
     const messages = useMemo(() => {
         return currentMessages.map((message) => ({
             ...message,
@@ -132,10 +138,11 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     useTurnChatSSE(turnId, undefined, onDone, onChunk, onStreamStart);
 
     useEffect(() => {
-        if (!currentThreadId && threadId) {
+        if (!currentThreadId && threadId && allTurns.length > 0) {
             // Handle thread ID logic
+            dispatch(appendTurnsList({ threadId, turns: allTurns }));
         }
-    }, [currentThreadId, threadId]);
+    }, [currentThreadId, threadId, allTurns]);
 
     useEffect(() => {
         if (messagesEndRef.current) {

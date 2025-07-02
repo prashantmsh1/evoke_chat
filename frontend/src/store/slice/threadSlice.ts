@@ -1,16 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ChatMessage } from "../api/threadApi";
-import type { ThreadResponse } from "../api/threadApi";
+import type { ThreadResponse, Thread } from "../api/threadApi";
 
 interface ChatState {
     threads: Record<string, ThreadResponse>;
     messages: Record<string, ChatMessage[]>; // key: threadId
     currentThreadId?: string;
+    allThreads: Thread[];
 }
 
 const initialState: ChatState = {
     threads: {},
     messages: {},
+    allThreads: [],
     currentThreadId: undefined,
 };
 
@@ -27,6 +29,17 @@ const chatSlice = createSlice({
                 state.messages[action.payload.threadId] = [];
             }
             state.messages[action.payload.threadId].push(action.payload.message);
+        },
+
+        appendTurnsList(state, action: PayloadAction<{ threadId: string; turns: ChatMessage[] }>) {
+            if (!state.messages[action.payload.threadId]) {
+                state.messages[action.payload.threadId] = [];
+            }
+            // Append new turns to the existing messages for the thread
+            state.messages[action.payload.threadId] = [
+                // ...state.messages[action.payload.threadId],
+                ...action.payload.turns,
+            ];
         },
         // NEW: Append content to the last assistant message for typing effect
         appendToLastAssistantMessage(
@@ -84,6 +97,13 @@ const chatSlice = createSlice({
         setCurrentThreadId(state, action: PayloadAction<string>) {
             state.currentThreadId = action.payload;
         },
+
+        setAllThreads(state, action: PayloadAction<Thread[]>) {
+            state.allThreads = action.payload;
+        },
+        addThread(state, action: PayloadAction<Thread>) {
+            state.allThreads.push(action.payload);
+        },
     },
 });
 
@@ -94,5 +114,8 @@ export const {
     setCurrentThreadId,
     updateLastAssistantMessage,
     appendToLastAssistantMessage,
+    appendTurnsList,
+    setAllThreads,
+    addThread,
 } = chatSlice.actions;
 export default chatSlice.reducer;

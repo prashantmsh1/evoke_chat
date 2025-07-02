@@ -265,3 +265,100 @@ export const getTurnChat = async (req: Request, res: Response): Promise<void> =>
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getAllThreads = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const user = req.user;
+
+        // Validate user
+        if (!user?.id) {
+            res.status(400).json({ message: "User not authenticated" });
+            return;
+        }
+
+        // Fetch all threads for the user
+        const threads = await prisma.thread.findMany({
+            where: { userId: user.id },
+            include: {
+                // turns: {
+                //     orderBy: { createdAt: "desc" },
+                //     take: 1, // Get only the latest turn for each thread
+                // },
+            },
+            orderBy: { createdAt: "desc" }, // Order threads by creation date
+        });
+
+        res.status(200).json(threads);
+    } catch (error) {
+        console.error("Error fetching threads:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const getThreadTurnsById = async (req: Request, res: Response): Promise<void> => {
+    const { threadId } = req.params;
+
+    try {
+        // Validate threadId
+        if (!threadId) {
+            res.status(400).json({ message: "Thread ID is required" });
+            return;
+        }
+
+        // Fetch the thread and its turns
+        const thread = await prisma.thread.findUnique({
+            where: { id: threadId },
+            include: {
+                turns: {
+                    orderBy: { createdAt: "asc" },
+                    include: {
+                        sources: {
+                            include: {
+                                source: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        if (!thread) {
+            res.status(404).json({ message: "Thread not found" });
+            return;
+        }
+        const messages = thread.turns.flatMap((turn) => {
+            const userMsg = {
+                id: Number(new Date(turn.createdAt)) + 1, // or use a counter/index
+                type: "user" as const,
+                content: turn.userPrompt,
+                timestamp: turn.createdAt.toISOString(),
+                finished: true,
+                model: turn.llmModel,
+                sources: [],
+            };
+
+            const assistantMsg = turn.llmResponse
+                ? {
+                      id: Number(new Date(turn.createdAt)) + 2, // or use a counter/index
+                      type: "assistant" as const,
+                      content: turn.llmResponse,
+                      timestamp: turn.createdAt.toISOString(),
+                      finished: turn.status === "completed",
+                      model: turn.llmModel,
+                      sources: (turn.sources || []).map((ts) => ({
+                          title: ts.source?.title || "",
+                          url: ts.source?.url || "",
+                          description: ts.source?.rawContent || "",
+                      })),
+                  }
+                : null;
+
+            return assistantMsg ? [userMsg, assistantMsg] : [userMsg];
+        });
+
+        res.status(200).json({ turns: messages });
+    } catch (error) {
+        console.error("Error fetching thread turns:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};

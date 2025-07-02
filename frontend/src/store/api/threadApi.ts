@@ -25,6 +25,23 @@ export interface ChatMessage {
     finishReason?: string;
     error?: string;
 }
+export interface Turn {
+    id: string;
+    threadId: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+    messages: ChatMessage[];
+}
+
+export interface Thread {
+    id: string;
+    title: string;
+    userId: string;
+    createdAt: string;
+    updatedAt: string;
+    turns: Turn[];
+}
 
 export const chatApi = createApi({
     reducerPath: "chatApi",
@@ -57,7 +74,33 @@ export const chatApi = createApi({
             // No cache for SSE
             providesTags: [],
         }),
+
+        getAllThreads: builder.query<Thread[], void>({
+            query: () => ({
+                url: "/thread/all",
+                method: "GET",
+            }),
+            providesTags: (result) =>
+                result ? result.map(({ id }) => ({ type: "Thread" as const, id })) : [],
+        }),
+
+        getThreadTurnsById: builder.query<ChatMessage[], { threadId: string }>({
+            query: ({ threadId }) => ({
+                url: `/thread/turns/${threadId}`,
+                method: "GET",
+            }),
+
+            transformResponse(baseQueryReturnValue: Thread) {
+                // Only return the turns array from the Thread object
+                return baseQueryReturnValue.turns;
+            },
+        }),
     }),
 });
 
-export const { useInitiateThreadMutation, useLazyGetTurnChatQuery } = chatApi;
+export const {
+    useInitiateThreadMutation,
+    useLazyGetTurnChatQuery,
+    useGetAllThreadsQuery,
+    useGetThreadTurnsByIdQuery,
+} = chatApi;
