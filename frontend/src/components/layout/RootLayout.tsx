@@ -26,10 +26,15 @@ const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
             <AppSidebar />
 
             <div className="flex relative w-full bg-black">
-                {/* Sidebar Trigger - Only show when sidebar is closed */}
-                {!open && (
+                {/* Sidebar Trigger - Always show on mobile, show on desktop when closed */}
+                <div className="md:hidden">
                     <SidebarTrigger className="absolute top-2 left-4 z-50 bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-lg p-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.05]" />
-                )}
+                </div>
+                <div className="hidden md:block">
+                    {!open && (
+                        <SidebarTrigger className="absolute top-2 left-4 z-50 bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/30 rounded-lg p-2 backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.05]" />
+                    )}
+                </div>
 
                 {/* Main Content Area */}
                 <main className="w-full bg-[#1C1C1C]">

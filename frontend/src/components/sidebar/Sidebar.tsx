@@ -16,7 +16,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, ChevronUp, User2 } from "lucide-react";
+import { ChevronDown, ChevronUp, User2, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useSelector } from "react-redux";
 import { useGetAllThreadsQuery } from "@/store/api/threadApi";
@@ -46,7 +46,18 @@ const AppSidebar = () => {
                 </div>
             </SidebarHeader>
             <SidebarContent className=" mt-8 p-2  ">
-                <SidebarMenu>
+                <SidebarMenu className=" flex flex-col gap-2 ">
+                    <SidebarMenuItem
+                        onClick={() => {
+                            navigate(`/chatpage`);
+                        }}
+                        className="  *:text-gray-50  rounded bg-gray-700/20 *:hover:text-gray-50 mb-2">
+                        <SidebarMenuButton
+                            className={` ${open ? "" : ""}  text-nowrap hover:bg-gray-700/30 `}>
+                            <Plus className={`w-4 h-4  ${open ? "" : " mr-2"}`} />
+                            {open && "New Chat"}
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
                     {open &&
                         allThreads.map((thread: any) => (
                             <SidebarMenuItem
@@ -54,9 +65,12 @@ const AppSidebar = () => {
                                     navigate(`/chat/${thread.id}`);
                                 }}
                                 key={thread.id}
-                                className="  *:text-gray-50 p-1 rounded bg-gray-700/20 *:hover:text-gray-50"
+                                className="  *:text-gray-50  rounded bg-gray-700/20 *:hover:text-gray-50"
                                 href={`/chatpage/${thread.id}`}>
-                                <SidebarMenuButton className={` ${open ? "" : ""} text-nowrap `}>
+                                <SidebarMenuButton
+                                    className={` ${
+                                        open ? "" : ""
+                                    } text-nowrap hover:bg-gray-700/30 `}>
                                     {thread.title}
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
