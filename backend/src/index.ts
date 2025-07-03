@@ -25,7 +25,7 @@ console.log("Starting application...");
 const app = express();
 console.log("Express app created.");
 
-// LLMConfigService.initialize(); // Initialize LLM configurations
+ LLMConfigService.initialize(); // Initialize LLM configurations
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 app.set("trust proxy", true); // Trust first proxy for rate limiting
@@ -58,8 +58,8 @@ app.use(
 );
 app.use(
     cors({
-        origin: "*",
-        // origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:5173"],
+        // origin: "*",
+        origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:5173"],
         credentials: true,
     })
 );
