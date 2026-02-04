@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import useTurnChatSSE from "@/hooks/useTurnChatSSE";
+
 import { useInitiateThreadMutation } from "@/store/api/threadApi";
 import { addMessage, setThread } from "@/store/slice/threadSlice";
 import { ArrowRight } from "lucide-react";
