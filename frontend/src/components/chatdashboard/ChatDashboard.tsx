@@ -303,32 +303,38 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                     </button>
 
                                     {expandedSources[message.id] && (
-                                        <div className="mt-3 space-y-2 transition-all duration-300">
+                                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 transition-all duration-300">
                                             {message.sources.map((source, idx) => (
-                                                <div
+                                                <a
                                                     key={idx}
-                                                    className="bg-card/40 backdrop-blur-xl border border-border rounded-xl p-4">
-                                                    <div className="flex items-start space-x-3">
-                                                        <span className="text-lg">
-                                                            {source.favicon}
+                                                    href={source.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="group block p-4 bg-card/40 hover:bg-card/60 backdrop-blur-xl border border-border/50 hover:border-border rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                                                    <div className="flex items-start justify-between mb-2">
+                                                        <span className="text-xs font-medium px-2 py-1 rounded-md bg-background/50 text-muted-foreground group-hover:text-foreground transition-colors border border-border/30">
+                                                            Source {idx + 1}
                                                         </span>
-                                                        <div className="flex-1 *:text-wrap">
-                                                            <a
-                                                                href={source.url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="font-light text-foreground hover:text-foreground/80 transition-colors">
-                                                                {source.title}
-                                                            </a>
-                                                            <p className="text-sm text-muted-foreground mt-1 font-light">
-                                                                {source.description}
-                                                            </p>
-                                                            <p className="text-xs whitespace-break-spaces text-muted-foreground/70 mt-1 font-light">
-                                                                {source.url}
-                                                            </p>
-                                                        </div>
+                                                        <span className="text-lg opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all">
+                                                            {source.favicon || "🔗"}
+                                                        </span>
                                                     </div>
-                                                </div>
+
+                                                    <h4 className="font-medium text-sm text-foreground mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                                                        {source.title}
+                                                    </h4>
+
+                                                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2 h-8 leading-relaxed">
+                                                        {source.description}
+                                                    </p>
+
+                                                    <div className="flex items-center text-[10px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
+                                                        <LinkIcon className="h-3 w-3 mr-1" />
+                                                        <span className="truncate">
+                                                            {new URL(source.url).hostname}
+                                                        </span>
+                                                    </div>
+                                                </a>
                                             ))}
                                         </div>
                                     )}
