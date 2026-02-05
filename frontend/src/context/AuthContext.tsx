@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const dispatch = useDispatch();
     const { toast } = useToast();
     const { user, isAuthenticated, isLoading, error } = useSelector(
-        (state: RootState) => state.auth
+        (state: RootState) => state.auth,
     );
     const [googleAuth] = useGoogleAuthMutation();
     const [logoutMutation] = useLogoutMutation();
@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         user: result.user,
                         accessToken: result.accessToken,
                         refreshToken: result.refreshToken,
-                    })
+                    }),
                 );
                 <Navigate to={"/chatpage"} />;
                 // window.location.href = "/chat"; // Redirect to chat page after successful login
@@ -138,7 +138,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         user: parsedUser,
                         accessToken: storedAccessToken,
                         refreshToken: storedRefreshToken,
-                    })
+                    }),
                 );
                 console.log("Restored user from localStorage:", parsedUser);
             } catch (error) {
@@ -158,15 +158,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
         });
 
+        // Ensure loading state is reset on mount (handles interrupted flows)
+        dispatch(setLoading(false));
+
         // Handle redirect result for mobile devices
         getRedirectResult(auth)
             .then((result) => {
                 if (result?.user) {
                     handleFirebaseUser(result.user);
+                } else {
+                    // No redirect result, ensure loading is false
+                    dispatch(setLoading(false));
                 }
             })
             .catch((error) => {
                 console.error("Redirect result error:", error);
+                dispatch(setLoading(false)); // Reset loading state on error
                 dispatch(setError("Authentication redirect failed"));
                 toast({
                     title: "Authentication Error",
@@ -243,7 +250,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             // Check if we're on mobile device
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-                navigator.userAgent
+                navigator.userAgent,
             );
 
             if (isMobile) {

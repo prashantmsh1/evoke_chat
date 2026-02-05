@@ -10,6 +10,7 @@ import storage from "redux-persist/lib/storage";
 const authPersistConfig = {
     key: "auth",
     storage,
+    blacklist: ["isLoading", "error"], // Don't persist loading and error states
 };
 
 const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
