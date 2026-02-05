@@ -10,9 +10,9 @@ const useTurnChatStream = (
         isFirst: boolean,
         finished: boolean,
         sources?: Array<{ title: string; url: string; description: string; favicon: string }>,
-        model?: string
+        model?: string,
     ) => void,
-    onStreamStart?: () => void
+    onStreamStart?: () => void,
 ) => {
     const abortRef = useRef<AbortController | null>(null);
     const previousContentRef = useRef<string>("");
@@ -57,7 +57,16 @@ const useTurnChatStream = (
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                buffer += decoder.decode(value, { stream: true });
+                const decodedChunk = decoder.decode(value, { stream: true });
+                console.log(
+                    "Hooks: Received chunk type:",
+                    typeof value,
+                    "size:",
+                    value?.length,
+                    "decoded:",
+                    decodedChunk,
+                );
+                buffer += decodedChunk;
 
                 // Split on double newlines (SSE format)
                 const parts = buffer.split("\n\n");
@@ -81,7 +90,7 @@ const useTurnChatStream = (
                         // If using chunk callback for typing animation
                         if (onChunk && data.content !== undefined) {
                             const newContent = data.content.slice(
-                                previousContentRef.current.length
+                                previousContentRef.current.length,
                             );
 
                             // Extract sources and model from the data
@@ -100,7 +109,7 @@ const useTurnChatStream = (
                                     isFirstChunk,
                                     data.finished || false,
                                     sources,
-                                    model
+                                    model,
                                 );
 
                                 if (newContent) {

@@ -63,10 +63,22 @@ app.use(
             "http://localhost:5174",
             "http://localhost:3000",
         ],
-        // credentials: true,
+        credentials: true,
     }),
 );
-app.use(compression());
+app.use(
+    compression({
+        filter: (req, res) => {
+            if (req.headers["x-no-compression"]) {
+                return false;
+            }
+            if (res.getHeader("Content-Type") === "text/event-stream") {
+                return false;
+            }
+            return compression.filter(req, res);
+        },
+    }),
+);
 app.use(morgan("combined"));
 app.use(limiter);
 app.use(express.json({ limit: "10mb" }));
@@ -75,6 +87,23 @@ app.use(express.urlencoded({ extended: true }));
 // Health check
 app.get("/health", (req, res) => {
     res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// Test stream route
+app.get("/test-stream", async (req, res) => {
+    console.log("Test stream connected");
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    for (let i = 0; i < 5; i++) {
+        res.write(`data: ${JSON.stringify({ content: `Chunk ${i} ` })}\n\n`);
+        if ((res as any).flush) (res as any).flush();
+        await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    res.write("data: [DONE]\n\n");
+    res.end();
 });
 
 app.use("/api", authRoutes);

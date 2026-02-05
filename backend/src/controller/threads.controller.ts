@@ -196,6 +196,9 @@ export const getTurnChat = async (req: Request, res: Response): Promise<void> =>
                 // Send chunk as SSE
                 const sseData = `data: ${JSON.stringify(formattedChunk)}\n\n`;
                 res.write(sseData);
+                if ((res as any).flush) {
+                    (res as any).flush();
+                }
 
                 // If response is finished, save to database and cleanup
                 if (chunk.finished) {

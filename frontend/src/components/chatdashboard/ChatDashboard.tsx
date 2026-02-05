@@ -10,7 +10,7 @@ import {
     LinkIcon,
     ClockIcon,
 } from "@heroicons/react/24/outline";
-import { RootState } from "@reduxjs/toolkit/query";
+import { RootState } from "@/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import useTurnChatSSE from "@/hooks/useTurnChatSSE";
 import {
@@ -27,25 +27,98 @@ interface ChatDashboardProps {
     threadId: string;
 }
 
+// Component to handle smooth typing effect for markdown content
+const TypingEffect = ({ content, isStreaming }: { content: string; isStreaming: boolean }) => {
+    const [displayedContent, setDisplayedContent] = useState("");
+
+    useEffect(() => {
+        if (!isStreaming) {
+            setDisplayedContent(content);
+            return;
+        }
+
+        let currentIndex = 0;
+        const targetContent = content;
+
+        // If we're starting fresh or content changed significantly (backwards), reset
+        if (targetContent.length < displayedContent.length) {
+            setDisplayedContent("");
+            currentIndex = 0;
+        } else {
+            currentIndex = displayedContent.length;
+        }
+
+        const interval = setInterval(() => {
+            if (currentIndex < targetContent.length) {
+                // Determine how many characters to add based on backlog
+                const backlog = targetContent.length - currentIndex;
+                const charsToAdd = Math.max(1, Math.min(5, Math.ceil(backlog / 5)));
+
+                setDisplayedContent((prev) => targetContent.slice(0, prev.length + charsToAdd));
+                currentIndex += charsToAdd;
+            } else {
+                clearInterval(interval);
+            }
+        }, 10); // Fast update rate (10ms)
+
+        return () => clearInterval(interval);
+    }, [content, isStreaming]);
+
+    return (
+        <div className={`prose prose-sm max-w-none ${isStreaming ? "typing-animation" : ""}`}>
+            <ReactMarkdown
+                components={{
+                    code({ className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || "");
+                        return !props.inline && match ? (
+                            <SyntaxHighlighter
+                                style={okaidia as Record<string, React.CSSProperties>}
+                                customStyle={{
+                                    backgroundColor: "var(--card)",
+                                    padding: "1rem",
+                                    borderRadius: "0.5rem",
+                                    border: "1px solid var(--border)",
+                                }}
+                                language={match[1]}
+                                PreTag="div"
+                                {...props}>
+                                {String(children).replace(/\n$/, "")}
+                            </SyntaxHighlighter>
+                        ) : (
+                            <code className={className} {...props}>
+                                {children}
+                            </code>
+                        );
+                    },
+                }}>
+                {displayedContent}
+            </ReactMarkdown>
+        </div>
+    );
+};
+
 const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
     const [newMessage, setNewMessage] = useState("");
     const [isSearchEnabled, setIsSearchEnabled] = useState(true);
-    const [expandedSources, setExpandedSources] = useState({});
+    const [expandedSources, setExpandedSources] = useState<Record<number, boolean>>({});
     const [isStreaming, setIsStreaming] = useState(false);
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const [initiateThread, { isLoading: isInitiatingThread }] = useInitiateThreadMutation();
 
     const dispatch = useDispatch();
     const currentThreadId = useSelector((state: RootState) => state.chat.currentThreadId);
     const currentMessages = useSelector((state: RootState) => state.chat.messages[threadId] || []);
-    const turnId = useSelector((state: RootState) => state.chat.threads[currentThreadId]?.turnId);
+    const turnId = useSelector(
+        (state: RootState) => state.chat.threads[currentThreadId || ""]?.turnId,
+    );
     const isFirstChunk = useRef(true);
     const { data: allTurns = [], isLoading: isTurnsLoading } = useGetThreadTurnsByIdQuery(
         { threadId },
         {
             skip: !threadId,
-        }
+        },
     );
+
     const messages = useMemo(() => {
         return currentMessages.map((message) => ({
             ...message,
@@ -77,7 +150,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                         content: newMessage,
                         timestamp: new Date().toISOString(),
                     },
-                })
+                }),
             );
 
             setNewMessage("");
@@ -102,7 +175,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
             isFirst: boolean,
             finished: boolean,
             sources?: Array<{ title: string; url: string; description: string; favicon: string }>,
-            model?: string
+            model?: string,
         ) => {
             if (isStreaming) {
                 setIsStreaming(false);
@@ -127,40 +200,39 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             finished,
                             sources,
                             model,
-                        })
+                        }),
                     );
                 });
             }
         },
-        [dispatch, threadId, isStreaming]
+        [dispatch, threadId, isStreaming],
     );
 
-    useTurnChatSSE(turnId, undefined, onDone, onChunk, onStreamStart);
+    useTurnChatSSE(turnId, () => {}, onDone, onChunk, onStreamStart);
 
     useEffect(() => {
         if (!currentThreadId && threadId && allTurns.length > 0) {
-            // Handle thread ID logic
             dispatch(appendTurnsList({ threadId, turns: allTurns }));
         }
-    }, [currentThreadId, threadId, allTurns]);
+    }, [currentThreadId, threadId, allTurns, dispatch]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
             const timeout = setTimeout(() => {
-                messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
             }, 30);
             return () => clearTimeout(timeout);
         }
     }, [messages]);
 
-    const toggleSources = (messageId) => {
+    const toggleSources = (messageId: number) => {
         setExpandedSources((prev) => ({
             ...prev,
             [messageId]: !prev[messageId],
         }));
     };
 
-    const formatTimestamp = (timestamp) => {
+    const formatTimestamp = (timestamp: string) => {
         const date = new Date(timestamp);
         return new Intl.DateTimeFormat("en-US", {
             hour: "2-digit",
@@ -205,97 +277,63 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                                         {message.content}
                                     </p>
                                 ) : (
-                                    <div
-                                        className={`prose prose-sm max-w-none ${
-                                            !message.finished ? "typing-animation" : ""
-                                        }`}>
-                                        <ReactMarkdown
-                                            components={{
-                                                code({
-                                                    node,
-                                                    inline,
-                                                    className,
-                                                    children,
-                                                    ...props
-                                                }) {
-                                                    const match = /language-(\w+)/.exec(
-                                                        className || ""
-                                                    );
-                                                    return !inline && match ? (
-                                                        <SyntaxHighlighter
-                                                            style={okaidia}
-                                                            customStyle={{
-                                                                backgroundColor: "var(--card)",
-                                                                padding: "1rem",
-                                                                borderRadius: "0.5rem",
-                                                                border: "1px solid var(--border)",
-                                                            }}
-                                                            language={match[1]}
-                                                            PreTag="div"
-                                                            {...props}>
-                                                            {String(children).replace(/\n$/, "")}
-                                                        </SyntaxHighlighter>
-                                                    ) : (
-                                                        <code className={className} {...props}>
-                                                            {children}
-                                                        </code>
-                                                    );
-                                                },
-                                            }}>
-                                            {message.content}
-                                        </ReactMarkdown>
-                                    </div>
+                                    <TypingEffect
+                                        content={message.content}
+                                        isStreaming={!message.finished}
+                                    />
                                 )}
                             </div>
                         </div>
 
                         {/* Sources */}
-                        {message.type === "assistant" && message.sources && (
-                            <div className="ml-4 max-w-3xl">
-                                <button
-                                    onClick={() => toggleSources(message.id)}
-                                    className="flex transition-all duration-300 items-center text-sm font-light text-muted-foreground hover:text-foreground/80">
-                                    <LinkIcon className="h-4 w-4 mr-2" />
-                                    Sources ({message.sources.length})
-                                    {expandedSources[message.id] ? (
-                                        <ChevronUpIcon className="h-4 w-4 ml-1" />
-                                    ) : (
-                                        <ChevronDownIcon className="h-4 w-4 ml-1" />
-                                    )}
-                                </button>
+                        {message.type === "assistant" &&
+                            message.sources &&
+                            message.sources.length > 0 && (
+                                <div className="ml-4 max-w-3xl">
+                                    <button
+                                        onClick={() => toggleSources(message.id)}
+                                        className="flex transition-all duration-300 items-center text-sm font-light text-muted-foreground hover:text-foreground/80">
+                                        <LinkIcon className="h-4 w-4 mr-2" />
+                                        Sources ({message.sources.length})
+                                        {expandedSources[message.id] ? (
+                                            <ChevronUpIcon className="h-4 w-4 ml-1" />
+                                        ) : (
+                                            <ChevronDownIcon className="h-4 w-4 ml-1" />
+                                        )}
+                                    </button>
 
-                                {expandedSources[message.id] && (
-                                    <div className="mt-3 space-y-2 transition-all duration-300">
-                                        {message.sources.map((source, index) => (
-                                            <div
-                                                key={index}
-                                                className="bg-card/40 backdrop-blur-xl border border-border rounded-xl p-4">
-                                                <div className="flex items-start space-x-3">
-                                                    <span className="text-lg">
-                                                        {source.favicon}
-                                                    </span>
-                                                    <div className="flex-1 *:text-wrap">
-                                                        <a
-                                                            href={source.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="font-light text-foreground hover:text-foreground/80 transition-colors">
-                                                            {source.title}
-                                                        </a>
-                                                        <p className="text-sm text-muted-foreground mt-1 font-light">
-                                                            {source.description}
-                                                        </p>
-                                                        <p className="text-xs whitespace-break-spaces text-muted-foreground/70 mt-1 font-light">
-                                                            {source.url}
-                                                        </p>
+                                    {expandedSources[message.id] && (
+                                        <div className="mt-3 space-y-2 transition-all duration-300">
+                                            {message.sources.map((source, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="bg-card/40 backdrop-blur-xl border border-border rounded-xl p-4">
+                                                    <div className="flex items-start space-x-3">
+                                                        <span className="text-lg">
+                                                            {source.favicon}
+                                                        </span>
+                                                        <div className="flex-1 *:text-wrap">
+                                                            <a
+                                                                href={source.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="font-light text-foreground hover:text-foreground/80 transition-colors">
+                                                                {source.title}
+                                                            </a>
+                                                            <p className="text-sm text-muted-foreground mt-1 font-light">
+                                                                {source.description}
+                                                            </p>
+                                                            <p className="text-xs whitespace-break-spaces text-muted-foreground/70 mt-1 font-light">
+                                                                {source.url}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                     </div>
                 ))}
 
@@ -326,10 +364,9 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
             {/* Chat Input */}
             <div className="py-1 relative z-10 mb-1">
                 <form onSubmit={handleSubmit} className="px-6">
-                    <div className="bg-card/40 backdrop-blur-xl flex  border border-border rounded-2xl p-1 shadow-2xl">
+                    <div className="bg-card/40 backdrop-blur-xl flex border border-border rounded-2xl p-1 shadow-2xl">
                         <textarea
-                            cols={3}
-                            type="text"
+                            rows={3}
                             value={newMessage}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" && !e.shiftKey) {
@@ -342,7 +379,7 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
                             className="w-full px-4 py-2 resize-none text-wrap hide-scrollbar bg-transparent text-foreground placeholder:text-muted-foreground font-light outline-none border-0 focus:ring-0"
                             disabled={isInitiatingThread || isStreaming}
                         />
-                        <div className="flex justify-between items-center  ">
+                        <div className="flex justify-between items-center">
                             <button
                                 type="submit"
                                 disabled={isInitiatingThread || isStreaming || !newMessage.trim()}
@@ -358,4 +395,3 @@ const ChatDashboard = ({ threadId }: ChatDashboardProps) => {
 };
 
 export default ChatDashboard;
-//
