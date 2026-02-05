@@ -25,7 +25,7 @@ console.log("Starting application...");
 const app = express();
 console.log("Express app created.");
 
- LLMConfigService.initialize(); // Initialize LLM configurations
+LLMConfigService.initialize(); // Initialize LLM configurations
 
 const PORT = parseInt(process.env.PORT || "3000", 10);
 app.set("trust proxy", true); // Trust first proxy for rate limiting
@@ -54,14 +54,17 @@ const limiter = rateLimit({
 app.use(
     helmet({
         crossOriginEmbedderPolicy: false, // Disable for Railway compatibility
-    })
+    }),
 );
 app.use(
     cors({
-        // origin: "*",
-        origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:5173"],
-        credentials: true,
-    })
+        origin: process.env.ALLOWED_ORIGINS?.split(",") || [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:3000",
+        ],
+        // credentials: true,
+    }),
 );
 app.use(compression());
 app.use(morgan("combined"));
@@ -108,6 +111,6 @@ process.on("unhandledRejection", (reason: Error | any) => {
 // Also log memory usage periodically to check for leaks
 setInterval(() => {
     console.log(
-        `💡 Current memory usage: ${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`
+        `💡 Current memory usage: ${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`,
     );
 }, 60000); // Log every minute
