@@ -23,12 +23,19 @@ jobs:
             git checkout ${{ github.ref_name }}
             git pull origin ${{ github.ref_name }}
             
-            # 3. Clean workspace install (from root to link workspace dependencies)
+            # 3. CRITICAL: Load NVM environment variables so Linux can find npm and pm2
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            
+            # 4. Clean workspace install
             npm install
             
-            # 4. Smart PM2 Reload (Zero-Downtime reload based on active branch)
+            # 5. Smart PM2 Reload
             if [ "${{ github.ref_name }}" = "production" ]; then
               pm2 reload evokechat-backend --update-env
             else
               pm2 reload portfolio-backend --update-env
             fi
+
+            
