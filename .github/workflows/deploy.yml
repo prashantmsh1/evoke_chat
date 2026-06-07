@@ -38,4 +38,5 @@ jobs:
               pm2 reload portfolio-backend --update-env
             fi
 
+            pm2 save
             
