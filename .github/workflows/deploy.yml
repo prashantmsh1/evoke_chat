@@ -1,0 +1,34 @@
+name: Automated Production Deploy
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: 34.30.245.152
+          username: prashantkr.msh
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # 1. Navigate to your app directory
+            cd ~/apps/evoke_chat/backend
+            
+            # 2. Reset any accidental lockfiles and pull the exact matching branch
+            git reset --hard HEAD
+            git checkout ${{ github.ref_name }}
+            git pull origin ${{ github.ref_name }}
+            
+            # 3. Clean workspace install (from root to link workspace dependencies)
+            npm install
+            
+            # 4. Smart PM2 Reload (Zero-Downtime reload based on active branch)
+            if [ "${{ github.ref_name }}" = "production" ]; then
+              pm2 reload evokechat-backend --update-env
+            else
+              pm2 reload portfolio-backend --update-env
+            fi
