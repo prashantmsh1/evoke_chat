@@ -30,6 +30,7 @@ jobs:
             
             # 4. Clean workspace install
             npm install
+            npm run build
             
             # 5. Smart PM2 Reload
             if [ "${{ github.ref_name }}" = "production" ]; then
