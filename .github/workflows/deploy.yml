@@ -11,7 +11,7 @@ jobs:
       - name: Execute Remote SSH Commands
         uses: appleboy/ssh-action@master
         with:
-          host: 34.30.245.152
+          host: 136.113.246.90 
           username: prashantkr.msh
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
